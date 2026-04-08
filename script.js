@@ -24,7 +24,7 @@ const STORAGE_KEY = "profile_frame_config";
 const MAX_TEXT_LENGTH = 170;
 
 const state = {
-  text: '"Place Here Your Round Text, Maximum 170 Characters."',
+  text: "Place Here Your Round Text, Maximum 170 Characters.",
   color: "#a34797",
   logoShape: "circle",
   logoBorder: false,
@@ -92,14 +92,25 @@ function updateLogoRadius(radius) {
   }
 }
 
-function readImageFile(file, callback) {
-  if (!file) return;
+function readImageFile(file) {
+  return new Promise((resolve, reject) => {
+    if (!file) {
+      resolve(null);
+      return;
+    }
 
-  const reader = new FileReader();
-  reader.onload = function (e) {
-    callback(e.target.result);
-  };
-  reader.readAsDataURL(file);
+    const reader = new FileReader();
+
+    reader.onload = function (e) {
+      resolve(e.target.result);
+    };
+
+    reader.onerror = function () {
+      reject(new Error("Failed to read image file."));
+    };
+
+    reader.readAsDataURL(file);
+  });
 }
 
 function setLogoImage(dataUrl) {
@@ -107,8 +118,23 @@ function setLogoImage(dataUrl) {
 
   logoImage.src = dataUrl;
   logoImage.hidden = false;
-  logoPlaceholder.style.display = "none";
+
+  if (logoPlaceholder) {
+    logoPlaceholder.style.display = "none";
+  }
+
   state.logoData = dataUrl;
+}
+
+function clearLogoImage() {
+  logoImage.removeAttribute("src");
+  logoImage.hidden = true;
+
+  if (logoPlaceholder) {
+    logoPlaceholder.style.display = "block";
+  }
+
+  state.logoData = null;
 }
 
 function setUserImage(dataUrl) {
@@ -118,6 +144,13 @@ function setUserImage(dataUrl) {
   userImage.hidden = false;
   placeholderText.style.display = "none";
   state.userImageData = dataUrl;
+}
+
+function clearUserImage() {
+  userImage.removeAttribute("src");
+  userImage.hidden = true;
+  placeholderText.style.display = "block";
+  state.userImageData = null;
 }
 
 function saveConfigToLocalStorage() {
@@ -144,19 +177,14 @@ function loadConfigFromLocalStorage() {
   try {
     const parsed = JSON.parse(saved);
 
-    state.text = parsed.text || state.text;
-    state.color = parsed.color || state.color;
-    state.logoShape = parsed.logoShape || state.logoShape;
+    state.text = typeof parsed.text === "string" ? parsed.text : state.text;
+    state.color = typeof parsed.color === "string" ? parsed.color : state.color;
+    state.logoShape = typeof parsed.logoShape === "string" ? parsed.logoShape : state.logoShape;
     state.logoBorder = typeof parsed.logoBorder === "boolean" ? parsed.logoBorder : state.logoBorder;
-    state.logoRadius =
-      typeof parsed.logoRadius === "number" ? parsed.logoRadius : state.logoRadius;
-    state.logoData = parsed.logoData || null;
+    state.logoRadius = typeof parsed.logoRadius === "number" ? parsed.logoRadius : state.logoRadius;
+    state.logoData = typeof parsed.logoData === "string" ? parsed.logoData : null;
 
     applyStateToUI();
-
-    if (state.logoData) {
-      setLogoImage(state.logoData);
-    }
   } catch (error) {
     console.error("Failed to load saved config:", error);
     applyStateToUI();
@@ -176,6 +204,14 @@ function applyStateToUI() {
   updateLogoShape(state.logoShape);
   updateLogoRadius(state.logoRadius);
   updateLogoBorder();
+
+  if (state.logoData) {
+    setLogoImage(state.logoData);
+  } else {
+    clearLogoImage();
+  }
+
+  clearUserImage();
 }
 
 function downloadDataUrl(dataUrl, fileName) {
@@ -347,19 +383,43 @@ logoRadius.addEventListener("input", function () {
   updateLogoRadius(state.logoRadius);
 });
 
-logoUpload.addEventListener("change", function () {
+logoUpload.addEventListener("change", async function () {
   const file = this.files[0];
-  readImageFile(file, setLogoImage);
+  if (!file) {
+    clearLogoImage();
+    saveConfigToLocalStorage();
+    return;
+  }
+
+  try {
+    const dataUrl = await readImageFile(file);
+    setLogoImage(dataUrl);
+    saveConfigToLocalStorage();
+  } catch (error) {
+    console.error("Logo upload failed:", error);
+    alert("Logo upload failed.");
+  }
 });
 
-userImageUpload.addEventListener("change", function () {
+userImageUpload.addEventListener("change", async function () {
   const file = this.files[0];
-  readImageFile(file, setUserImage);
+  if (!file) {
+    clearUserImage();
+    return;
+  }
+
+  try {
+    const dataUrl = await readImageFile(file);
+    setUserImage(dataUrl);
+  } catch (error) {
+    console.error("User image upload failed:", error);
+    alert("User image upload failed.");
+  }
 });
 
 saveFrameBtn.addEventListener("click", function () {
   saveConfigToLocalStorage();
-  alert("Frame saved to localStorage.");
+  alert("Frame saved successfully.");
 });
 
 downloadPngBtn.addEventListener("click", async function () {
