@@ -65,16 +65,10 @@ function updateLogoShape(shape) {
   logoBox.classList.add(shape);
 
   if (shape === "circle") {
-    logoBox.style.width = "110px";
-    logoBox.style.height = "110px";
     logoBox.style.borderRadius = "50%";
   } else if (shape === "square") {
-    logoBox.style.width = "110px";
-    logoBox.style.height = "110px";
     logoBox.style.borderRadius = `${state.logoRadius}px`;
   } else if (shape === "rectangle") {
-    logoBox.style.width = "140px";
-    logoBox.style.height = "90px";
     logoBox.style.borderRadius = `${state.logoRadius}px`;
   }
 }

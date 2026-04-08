@@ -28,7 +28,7 @@ body {
 }
 
 .left-panel {
-  width: 380px;
+  width: 420px;
   flex-shrink: 0;
 }
 
@@ -313,6 +313,11 @@ h2 {
     height: 340px;
   }
 
+    .circle-text {
+    font-size: 15px;
+    letter-spacing: 0.3px;
+  }
+
   .outer-ring::before {
     inset: 20px;
     border-width: 5px;
@@ -337,5 +342,55 @@ h2 {
   .logo-box {
     right: 24px;
     bottom: 78px;
+  }
+}
+
+@media (max-width: 400px) {
+  .frame-canvas {
+    width: 300px;
+    height: 300px;
+  }
+
+  .outer-ring {
+    width: 280px;
+    height: 280px;
+  }
+
+  .outer-ring::before {
+    inset: 16px;
+    border-width: 4px;
+  }
+
+  .inner-ring {
+    width: 215px;
+    height: 215px;
+  }
+
+  .circle-text {
+    font-size: 15px;
+    letter-spacing: 0.3px;
+  }
+
+  .logo-box.circle,
+  .logo-box.square {
+    width: 50px;
+    height: 50px;
+  }
+
+  .logo-box.rectangle {
+    width: 80px;
+    height: 35px;
+  }
+
+  .logo-box {
+    right: 18px;
+    bottom: 52px;
+    padding: 5px;
+  }
+
+  #placeholderText {
+    font-size: 11px;
+    padding: 5px 8px;
+    bottom: 14px;
   }
 }
