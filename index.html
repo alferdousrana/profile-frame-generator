@@ -13,7 +13,13 @@
 
       <div class="form-group">
         <label for="frameText">Round Text</label>
-        <textarea id="frameText" rows="3" placeholder='Example: "Together for health. Stand with science."'></textarea>
+        <textarea
+          id="frameText"
+          rows="3"
+          maxlength="170"
+          placeholder='Example: "Together for health. Stand with science."'
+        ></textarea>
+        <div id="textCounter">0/170</div>
       </div>
 
       <div class="form-group">
@@ -33,6 +39,13 @@
           <option value="square">Square</option>
           <option value="rectangle">Rectangle</option>
         </select>
+      </div>
+
+      <div class="form-group checkbox-group">
+        <label class="checkbox-label" for="logoBorderToggle">
+          <input type="checkbox" id="logoBorderToggle" />
+          <span>Enable Logo Border</span>
+        </label>
       </div>
 
       <div class="form-group">
@@ -60,21 +73,21 @@
         <div id="frameCanvas" class="frame-canvas">
           <div class="outer-ring">
             <svg class="text-ring-svg" viewBox="0 0 490 490" id="textRingSvg">
-    <defs>
-     <path
-  id="circleTextPath"
-  d="M 245,245
-     m -221,0
-     a 221,221 0 1,1 442,0
-     a 221,221 0 1,1 -442,0" />
-    </defs>
+              <defs>
+                <path
+                  id="circleTextPath"
+                  d="M 245,245
+                     m -221,0
+                     a 221,221 0 1,1 442,0
+                     a 221,221 0 1,1 -442,0" />
+              </defs>
 
-    <text id="circleText" class="circle-text">
-      <textPath id="circleTextPathText" href="#circleTextPath" startOffset="0%">
-        Sample Round Text Here
-      </textPath>
-    </text>
-  </svg>
+              <text id="circleText" class="circle-text">
+                <textPath id="circleTextPathText" href="#circleTextPath" startOffset="0%">
+                  Sample Round Text Here
+                </textPath>
+              </text>
+            </svg>
 
             <div class="inner-ring">
               <div class="profile-placeholder" id="profilePlaceholder">
@@ -84,8 +97,8 @@
             </div>
 
             <div class="logo-box circle" id="logoBox">
-              <img id="logoImage" hidden />
-              <span id="logoPlaceholder">Logo</span>
+              <img id="logoImage" alt="Logo" hidden />
+              <!-- <span id="logoPlaceholder">Logo</span> -->
             </div>
           </div>
         </div>

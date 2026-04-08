@@ -2,17 +2,17 @@ const frameText = document.getElementById("frameText");
 const frameColor = document.getElementById("frameColor");
 const logoUpload = document.getElementById("logoUpload");
 const logoShape = document.getElementById("logoShape");
+const logoBorderToggle = document.getElementById("logoBorderToggle");
 const logoRadius = document.getElementById("logoRadius");
 const radiusValue = document.getElementById("radiusValue");
+const textCounter = document.getElementById("textCounter");
 const userImageUpload = document.getElementById("userImageUpload");
 
 const saveFrameBtn = document.getElementById("saveFrameBtn");
 const downloadPngBtn = document.getElementById("downloadPngBtn");
 const downloadJpgBtn = document.getElementById("downloadJpgBtn");
 
-const circleText = document.getElementById("circleText");
 const circleTextPathText = document.getElementById("circleTextPathText");
-const outerRing = document.querySelector(".outer-ring");
 const logoBox = document.getElementById("logoBox");
 const logoImage = document.getElementById("logoImage");
 const logoPlaceholder = document.getElementById("logoPlaceholder");
@@ -21,28 +21,29 @@ const placeholderText = document.getElementById("placeholderText");
 const frameCanvas = document.getElementById("frameCanvas");
 
 const STORAGE_KEY = "profile_frame_config";
+const MAX_TEXT_LENGTH = 170;
 
 const state = {
   text: '" The World Health Day 2026  “Together for health. Stand with science.” The World Health Day 2026 "',
   color: "#a34797",
   logoShape: "circle",
+  logoBorder: false,
   logoRadius: 20,
   logoData: null,
   userImageData: null
 };
 
+function updateTextCounter() {
+  const currentLength = frameText.value.length;
+  textCounter.textContent = `${currentLength}/${MAX_TEXT_LENGTH}`;
+}
+
 function createCircularText(text) {
   const cleanText = text && text.trim()
     ? text.trim()
-    : '" Sample Frame Text Around Circle "';
+    : "Sample Round Text Here";
 
-  let finalText = cleanText;
-
-  while (finalText.length < 120) {
-    finalText += "   " + cleanText;
-  }
-
-  circleTextPathText.textContent = finalText;
+  circleTextPathText.textContent = cleanText;
 }
 
 function updateFrameColor(color) {
@@ -58,6 +59,16 @@ function updateFrameColor(color) {
     }
   `;
   document.head.appendChild(dynamicStyle);
+
+  updateLogoBorder();
+}
+
+function updateLogoBorder() {
+  if (state.logoBorder) {
+    logoBox.style.border = `2px solid ${state.color}`;
+  } else {
+    logoBox.style.border = "2px solid #ffffff";
+  }
 }
 
 function updateLogoShape(shape) {
@@ -66,9 +77,7 @@ function updateLogoShape(shape) {
 
   if (shape === "circle") {
     logoBox.style.borderRadius = "50%";
-  } else if (shape === "square") {
-    logoBox.style.borderRadius = `${state.logoRadius}px`;
-  } else if (shape === "rectangle") {
+  } else {
     logoBox.style.borderRadius = `${state.logoRadius}px`;
   }
 }
@@ -116,6 +125,7 @@ function saveConfigToLocalStorage() {
     text: state.text,
     color: state.color,
     logoShape: state.logoShape,
+    logoBorder: state.logoBorder,
     logoRadius: state.logoRadius,
     logoData: state.logoData
   };
@@ -137,6 +147,7 @@ function loadConfigFromLocalStorage() {
     state.text = parsed.text || state.text;
     state.color = parsed.color || state.color;
     state.logoShape = parsed.logoShape || state.logoShape;
+    state.logoBorder = typeof parsed.logoBorder === "boolean" ? parsed.logoBorder : state.logoBorder;
     state.logoRadius =
       typeof parsed.logoRadius === "number" ? parsed.logoRadius : state.logoRadius;
     state.logoData = parsed.logoData || null;
@@ -156,12 +167,15 @@ function applyStateToUI() {
   frameText.value = state.text;
   frameColor.value = state.color;
   logoShape.value = state.logoShape;
+  logoBorderToggle.checked = state.logoBorder;
   logoRadius.value = state.logoRadius;
 
+  updateTextCounter();
   createCircularText(state.text);
   updateFrameColor(state.color);
   updateLogoShape(state.logoShape);
   updateLogoRadius(state.logoRadius);
+  updateLogoBorder();
 }
 
 function downloadDataUrl(dataUrl, fileName) {
@@ -172,6 +186,7 @@ function downloadDataUrl(dataUrl, fileName) {
   a.click();
   document.body.removeChild(a);
 }
+
 function waitForImageLoad(img) {
   return new Promise((resolve) => {
     if (!img || img.hidden || !img.src) {
@@ -224,6 +239,9 @@ async function exportFrame(format) {
           clonedLogoBox.style.alignItems = "center";
           clonedLogoBox.style.justifyContent = "center";
           clonedLogoBox.style.overflow = "hidden";
+          clonedLogoBox.style.border = state.logoBorder
+            ? `2px solid ${state.color}`
+            : "2px solid #ffffff";
         }
 
         if (clonedLogoImage) {
@@ -264,7 +282,12 @@ async function exportFrame(format) {
 }
 
 frameText.addEventListener("input", function () {
+  if (this.value.length > MAX_TEXT_LENGTH) {
+    this.value = this.value.slice(0, MAX_TEXT_LENGTH);
+  }
+
   state.text = this.value;
+  updateTextCounter();
   createCircularText(state.text);
 });
 
@@ -277,6 +300,11 @@ logoShape.addEventListener("change", function () {
   state.logoShape = this.value;
   updateLogoShape(state.logoShape);
   updateLogoRadius(state.logoRadius);
+});
+
+logoBorderToggle.addEventListener("change", function () {
+  state.logoBorder = this.checked;
+  updateLogoBorder();
 });
 
 logoRadius.addEventListener("input", function () {
