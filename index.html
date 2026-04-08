@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Profile Frame Generator</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div class="app">
+    <div class="left-panel">
+      <h1>Profile Frame Generator</h1>
+
+      <div class="form-group">
+        <label for="frameText">Round Text</label>
+        <textarea id="frameText" rows="3" placeholder='Example: "Together for health. Stand with science."'></textarea>
+      </div>
+
+      <div class="form-group">
+        <label for="frameColor">Frame Color</label>
+        <input type="color" id="frameColor" value="#a34797" />
+      </div>
+
+      <div class="form-group">
+        <label for="logoUpload">Upload Logo</label>
+        <input type="file" id="logoUpload" accept="image/*" />
+      </div>
+
+      <div class="form-group">
+        <label for="logoShape">Logo Background Shape</label>
+        <select id="logoShape">
+          <option value="circle">Circle</option>
+          <option value="square">Square</option>
+          <option value="rectangle">Rectangle</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label for="logoRadius">Logo Corner Radius</label>
+        <input type="range" id="logoRadius" min="0" max="50" value="20" />
+        <span id="radiusValue">20px</span>
+      </div>
+
+      <div class="form-group">
+        <label for="userImageUpload">Upload User Image</label>
+        <input type="file" id="userImageUpload" accept="image/*" />
+      </div>
+
+      <div class="button-group">
+        <button id="saveFrameBtn">Save and Next</button>
+        <button id="downloadPngBtn">Save as PNG</button>
+        <button id="downloadJpgBtn">Save as JPG</button>
+      </div>
+    </div>
+
+    <div class="right-panel">
+      <h2>Preview</h2>
+
+      <div class="preview-area">
+        <div id="frameCanvas" class="frame-canvas">
+          <div class="outer-ring">
+            <svg class="text-ring-svg" viewBox="0 0 490 490" id="textRingSvg">
+    <defs>
+     <path
+  id="circleTextPath"
+  d="M 245,245
+     m -221,0
+     a 221,221 0 1,1 442,0
+     a 221,221 0 1,1 -442,0" />
+    </defs>
+
+    <text id="circleText" class="circle-text">
+      <textPath id="circleTextPathText" href="#circleTextPath" startOffset="0%">
+        Sample Round Text Here
+      </textPath>
+    </text>
+  </svg>
+
+            <div class="inner-ring">
+              <div class="profile-placeholder" id="profilePlaceholder">
+                <img id="userImage" alt="User" hidden />
+                <span id="placeholderText">User Image</span>
+              </div>
+            </div>
+
+            <div class="logo-box circle" id="logoBox">
+              <img id="logoImage" alt="Logo" hidden />
+              <span id="logoPlaceholder">Logo</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+  <script src="script.js"></script>
+</body>
+</html>
