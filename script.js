@@ -24,7 +24,7 @@ const STORAGE_KEY = "profile_frame_config";
 const MAX_TEXT_LENGTH = 170;
 
 const state = {
-  text: '" The World Health Day 2026  “Together for health. Stand with science.” The World Health Day 2026 "',
+  text: '"Place Here Your Round Text, Maximum 170 Characters."',
   color: "#a34797",
   logoShape: "circle",
   logoBorder: false,
