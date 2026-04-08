@@ -205,61 +205,87 @@ function waitForImageLoad(img) {
 }
 
 async function exportFrame(format) {
-  try {
-    const oldPlaceholderDisplay = placeholderText.style.display;
-    const oldLogoPlaceholderDisplay = logoPlaceholder.style.display;
+  let oldPlaceholderDisplay = "";
+  let oldLogoPlaceholderDisplay = "";
+  let exportNode = null;
 
-    if (userImage.hidden === false) {
+  try {
+    oldPlaceholderDisplay = placeholderText ? placeholderText.style.display : "";
+    oldLogoPlaceholderDisplay = logoPlaceholder ? logoPlaceholder.style.display : "";
+
+    if (userImage && !userImage.hidden && placeholderText) {
       placeholderText.style.display = "none";
     }
 
-    if (logoImage.hidden === false) {
+    if (logoImage && !logoImage.hidden && logoPlaceholder) {
       logoPlaceholder.style.display = "none";
     }
 
     await waitForImageLoad(userImage);
     await waitForImageLoad(logoImage);
 
-    const canvas = await html2canvas(frameCanvas, {
+    exportNode = frameCanvas.cloneNode(true);
+    exportNode.style.margin = "0";
+    exportNode.style.transform = "none";
+    exportNode.style.position = "fixed";
+    exportNode.style.left = "-99999px";
+    exportNode.style.top = "0";
+    exportNode.style.zIndex = "-1";
+    exportNode.style.background = "transparent";
+
+    document.body.appendChild(exportNode);
+
+    const clonedLogoBox = exportNode.querySelector("#logoBox");
+    const clonedLogoImage = exportNode.querySelector("#logoImage");
+    const clonedSvg = exportNode.querySelector("#textRingSvg");
+    const clonedPlaceholder = exportNode.querySelector("#placeholderText");
+    const clonedLogoPlaceholder = exportNode.querySelector("#logoPlaceholder");
+
+    if (clonedPlaceholder && userImage && !userImage.hidden) {
+      clonedPlaceholder.style.display = "none";
+    }
+
+    if (clonedLogoPlaceholder && logoImage && !logoImage.hidden) {
+      clonedLogoPlaceholder.style.display = "none";
+    }
+
+    if (clonedSvg) {
+      clonedSvg.setAttribute("xmlns", "http://www.w3.org/2000/svg");
+    }
+
+    if (clonedLogoBox) {
+      clonedLogoBox.style.boxSizing = "border-box";
+      clonedLogoBox.style.display = "flex";
+      clonedLogoBox.style.alignItems = "center";
+      clonedLogoBox.style.justifyContent = "center";
+      clonedLogoBox.style.overflow = "hidden";
+      clonedLogoBox.style.padding = "8px";
+      clonedLogoBox.style.border = state.logoBorder
+        ? `2px solid ${state.color}`
+        : "2px solid #ffffff";
+    }
+
+    if (clonedLogoImage) {
+      clonedLogoImage.style.maxWidth = "100%";
+      clonedLogoImage.style.maxHeight = "100%";
+      clonedLogoImage.style.width = "auto";
+      clonedLogoImage.style.height = "auto";
+      clonedLogoImage.style.objectFit = "contain";
+      clonedLogoImage.style.display = clonedLogoImage.hidden ? "none" : "block";
+      clonedLogoImage.style.padding = "0";
+    }
+
+    const canvas = await html2canvas(exportNode, {
       backgroundColor: null,
-      scale: 3,
+      scale: 2,
       useCORS: true,
-      width: frameCanvas.offsetWidth,
-      height: frameCanvas.offsetHeight,
-      scrollX: 0,
-      scrollY: 0,
-      onclone: (clonedDoc) => {
-        const clonedLogoBox = clonedDoc.getElementById("logoBox");
-        const clonedLogoImage = clonedDoc.getElementById("logoImage");
-
-        if (clonedLogoBox) {
-          clonedLogoBox.style.boxSizing = "border-box";
-          clonedLogoBox.style.padding = "8px";
-          clonedLogoBox.style.display = "flex";
-          clonedLogoBox.style.alignItems = "center";
-          clonedLogoBox.style.justifyContent = "center";
-          clonedLogoBox.style.overflow = "hidden";
-          clonedLogoBox.style.border = state.logoBorder
-            ? `2px solid ${state.color}`
-            : "2px solid #ffffff";
-        }
-
-        if (clonedLogoImage) {
-          clonedLogoImage.style.maxWidth = "100%";
-          clonedLogoImage.style.maxHeight = "100%";
-          clonedLogoImage.style.width = "auto";
-          clonedLogoImage.style.height = "auto";
-          clonedLogoImage.style.objectFit = "contain";
-          clonedLogoImage.style.display = "block";
-          clonedLogoImage.style.padding = "0";
-        }
-      }
+      allowTaint: true
     });
 
     if (format === "png") {
       const pngUrl = canvas.toDataURL("image/png");
       downloadDataUrl(pngUrl, "profile-frame.png");
-    } else if (format === "jpg") {
+    } else {
       const jpgCanvas = document.createElement("canvas");
       jpgCanvas.width = canvas.width;
       jpgCanvas.height = canvas.height;
@@ -272,12 +298,21 @@ async function exportFrame(format) {
       const jpgUrl = jpgCanvas.toDataURL("image/jpeg", 0.95);
       downloadDataUrl(jpgUrl, "profile-frame.jpg");
     }
-
-    placeholderText.style.display = oldPlaceholderDisplay;
-    logoPlaceholder.style.display = oldLogoPlaceholderDisplay;
   } catch (error) {
     console.error("Export failed:", error);
-    alert("Export failed. Please try again.");
+    alert("Export failed: " + (error?.message || error));
+  } finally {
+    if (exportNode && exportNode.parentNode) {
+      exportNode.parentNode.removeChild(exportNode);
+    }
+
+    if (placeholderText) {
+      placeholderText.style.display = oldPlaceholderDisplay;
+    }
+
+    if (logoPlaceholder) {
+      logoPlaceholder.style.display = oldLogoPlaceholderDisplay;
+    }
   }
 }
 
